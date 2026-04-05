@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OtpEmail;
 use App\Models\otp_user;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 use function Symfony\Component\Clock\now;
 
@@ -38,33 +41,126 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Done....'], 200);
     }
-    public function register(Request $request)
+    //إرسال OTP عبر الإيميل
+    public function sendOtpToEmail($email, $otp, $name = null)
     {
-        $validated = $request->validate([
-            'phone_Number' => 'required|string|unique:users,phone_Number|max:10',
-            'name' => 'required|string|max:15'
+        try {
+            Mail::to($email)->send(new OtpEmail($otp, $name));
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Failed to send OTP email: ' . $e->getMessage());
+            return false;
+        }
+    }
+    public function requestOtpViaEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'phone_Number' => 'required|string'
         ]);
+        $user = User::where('phone_Number', $request->phone_Number)
+            ->orWhere('email', $request->email)
+            ->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'User aleardy exites'
+            ], 404);
+        }
+        $existingOtp = otp_user::where('phone_Number', $user->phone_Number)
+            ->where('expires_at', '>', now())
+            ->first();
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'phone_Number' => $validated['phone_Number'],
-        ]);
-
+        if ($existingOtp) {
+            $minutesLeft = Carbon::now()->diffInMinutes($existingOtp->expires_at, false);
+            return response()->json([
+                'message' => "An active token already exists. Please wait {$minutesLeft} minutes before requesting a new token.",
+                'time_remaining' => $minutesLeft
+            ], 429);
+        }
         $otp = rand(100000, 999999);
 
-        // تخزين الكود
         otp_user::updateOrCreate(
-            ['phone_Number' => $validated['phone_Number']],
+            ['phone_Number' => $user->phone_Number],
             [
                 'otp' => $otp,
                 'expires_at' => Carbon::now()->addMinutes(10)
             ]
         );
 
-        $this->sendOtpCode($validated['phone_Number'], $otp);
+        $emailSent = $this->sendOtpToEmail($request->email, $otp, $user->name);
+
+        if (!$emailSent) {
+            return response()->json([
+                'message' => 'Failed to send the code to your email. Please try again later.'
+            ], 500);
+        }
 
         return response()->json([
-            'message' => 'Account created. Please verify the code sent to WhatsApp.',
+            'message' => 'A verification code has been successfully sent to your email',
+            'is_verified' => false,
+            'expires_in' => '10 minutes'
+        ], 200);
+    }
+    public function register(Request $request)
+    {
+        $request->validate([
+            'phone_Number' => 'required|string|max:10',
+            'name' => 'required|string|max:15',
+            'email' => 'nullable|email|unique:users,email'
+        ]);
+
+        $phone = $request->phone_Number;
+        $name = $request->name;
+        $email = $request->email;
+
+        $existingUser = User::where('phone_Number', $phone)->first();
+
+        if ($existingUser) {
+            $otp = rand(100000, 999999);
+
+            otp_user::updateOrCreate(
+                ['phone_Number' => $phone],
+                ['otp' => $otp, 'expires_at' => Carbon::now()->addMinutes(10)]
+            );
+
+            if ($email) {
+                $this->sendOtpToEmail($email, $otp, $existingUser->name);
+                $method = 'email';
+            } else {
+                $this->sendOtpCode($phone, $otp);
+                $method = 'whatsapp';
+            }
+
+            return response()->json([
+                'message' => "The Number already been taken ",
+                'requires_otp' => true,
+                'is_verified' => false
+            ], 200);
+        }
+
+        $user = User::create([
+            'name' => $name,
+            'phone_Number' => $phone,
+            'email' => $email
+        ]);
+
+        $otp = rand(100000, 999999);
+
+        otp_user::updateOrCreate(
+            ['phone_Number' => $phone],
+            ['otp' => $otp, 'expires_at' => Carbon::now()->addMinutes(10)]
+        );
+
+        if ($email) {
+            $this->sendOtpToEmail($email, $otp, $name);
+            $method = 'email';
+        } else {
+            $this->sendOtpCode($phone, $otp);
+            $method = 'whatsapp';
+        }
+
+        return response()->json([
+            'message' => "Created account succssfully",
             'user_id' => $user->id,
             'is_verified' => false
         ], 200);
@@ -176,4 +272,6 @@ class AuthController extends Controller
             'expires_in' => '10 minutes'
         ], 200);
     }
+
+
 }
