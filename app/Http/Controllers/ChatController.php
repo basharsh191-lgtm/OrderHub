@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 class ChatController extends Controller
 {
-
+//
 public function ask(Request $request)
 {
     $apiKey = env('GEMINI_API_KEY');
