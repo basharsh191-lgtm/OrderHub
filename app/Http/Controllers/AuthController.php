@@ -160,9 +160,10 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => "Created account succssfully",
+            'message' => "Account created. Please verify the code sent to WhatsApp Or Email.",
             'user_id' => $user->id,
-            'is_verified' => false
+            'is_verified' => false,
+            'phone_Number'=>$user->phone_Number
         ], 200);
     }
     public function logout(Request $request)
@@ -179,13 +180,14 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'phone_Number' => 'required|string|max:10',
+            'email'=>'required|email'
         ]);
 
         $user = User::where('phone_Number', $request->phone_Number)->first();
 
         if (!$user) {
             return response()->json([
-                'message' => 'Invalid phone number'
+                'message' => 'Invalid phone number or email'
             ], 401);
         }
 
@@ -199,12 +201,12 @@ class AuthController extends Controller
             ]
         );
 
-        $this->sendOtpCode([$validated['phone_Number']], $otp);
-
+          $this->sendOtpToEmail($validated['email'],$otp,$user->name);
         return response()->json([
             'message' => 'Please verify the code sent to WhatsApp.',
             'user_id' => $user->id,
-            'is_verified' => false
+            'is_verified' => false,
+            'phone_Number'=>$user->phone_Number
         ], 200);
     }
     public function verifyOtp(Request $request)

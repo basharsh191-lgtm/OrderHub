@@ -64,9 +64,14 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Verification code 🔐</h1>
+    <div class="header">
+        <div class="logo">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcWEsC6gzBQ6bfz8_VKkIeRqrIcygA-wsY5w&s"
+                alt="Order Hub"
+                style="width: 70px; height: auto; margin-bottom: 10px;">
         </div>
+        <h1>Verification code 🔐</h1>
+    </div>
 
         @if($name)
             <p class="message">Hi <strong>{{ $name }}</strong>،</p>
@@ -78,7 +83,7 @@
             {{ $otp }}
         </div>
 
-        <p class="message">The code can only be used once and expired in<strong>10 minutes</strong>.</p>
+        <p class="message">The code can only be used once and expired in <strong>10 minutes</strong>.</p>
 
         <div class="expiry">
             If you did not request this code, please ignore this email ⚠️ .

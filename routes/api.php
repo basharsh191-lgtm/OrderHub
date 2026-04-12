@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RestauantController;
 use App\Http\Controllers\UserController;
@@ -23,4 +24,9 @@ Route::get('/showProduct',[RestauantController::class,'showProduct']);
 //للاحطتياط
 Route::post('/send_otp', [AuthController::class, 'sendOtpCode']);
 
-Route::apiResource('/orders',OrderController::class);
+//Route::apiResource('/orders',OrderController::class);
+Route::post('/orders',[OrderController::class,'store']);
+Route::put('/orders/{orderid}',[OrderController::class,'update']);
+Route::delete('/orders',[OrderController::class,'destroy']);
+//فكرة الذكاء الاصطناعي
+Route::post('/ask_ai', [ChatController::class, 'ask']);

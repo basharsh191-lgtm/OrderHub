@@ -15,6 +15,7 @@ class restaurantSeeder extends Seeder
     {
         restaurant::create([
             'owner_id'=>1,
+            'category_id'=>1,
             'name'=>'Anas Shawrma',
             'slug'=>'anas-shawrma',
             'logo'=>'http://127.0.0.1:8000/storage/restaurantSeed/3.png',
@@ -30,6 +31,7 @@ class restaurantSeeder extends Seeder
         ]);
             restaurant::create([
             'owner_id'=>2,
+            'category_id'=>1,
             'name'=>'alzawak',
             'slug'=>'al-zawak',
             'logo'=>'http://127.0.0.1:8000/storage/restaurantSeed/2.png',
@@ -45,6 +47,7 @@ class restaurantSeeder extends Seeder
         ]);
             restaurant::create([
             'owner_id'=>1,
+            'category_id'=>1,
             'name'=>'Anas Shawrma 2',
             'slug'=>'anas-shawrma-2',
             'logo'=>'http://127.0.0.1:8000/storage/restaurantSeed/3.png',
@@ -58,8 +61,9 @@ class restaurantSeeder extends Seeder
             'opens_at'=>'10:00:00',
             'closes_at'=>'22:00:00',
         ]);
-                restaurant::create([
+            restaurant::create([
             'owner_id'=>3,
+            'category_id'=>1,
             'name'=>'ala kefk',
             'slug'=>'ala-kefk',
             'logo'=>'http://127.0.0.1:8000/storage/restaurantSeed/2.png',
