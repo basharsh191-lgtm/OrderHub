@@ -12,4 +12,5 @@ class Order extends Model
         'order_number',
         'status',
     ];
+    //add relishin ships
 }
