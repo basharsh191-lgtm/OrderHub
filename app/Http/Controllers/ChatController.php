@@ -42,5 +42,15 @@ public function ask(Request $request)
     return response()->json([
         'reply' => $response['candidates'][0]['content']['parts'][0]['text'] ?? 'No response'
     ]);
+
+
+
+
+
+
+
+
+
+    
 }
 }
