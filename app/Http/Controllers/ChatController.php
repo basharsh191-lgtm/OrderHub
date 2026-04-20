@@ -55,7 +55,7 @@ public function ask(Request $request)
 
 
 
-    
+
 }
 public function compareTests(Request $request)
 {
