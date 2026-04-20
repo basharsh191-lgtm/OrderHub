@@ -30,3 +30,6 @@ Route::put('/orders/{orderid}',[OrderController::class,'update']);
 Route::delete('/orders',[OrderController::class,'destroy']);
 //فكرة الذكاء الاصطناعي
 Route::post('/ask_ai', [ChatController::class, 'ask']);
+//مع صور تحاليل
+Route::post('/compareTests', [ChatController::class, 'compareTests']);
+
