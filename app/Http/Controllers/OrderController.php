@@ -33,4 +33,17 @@ public function update(Request $request, Order $order)
         $order->delete();
         return response()->json(['message'=>'oreder is deleted'], 200);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+    
 }
