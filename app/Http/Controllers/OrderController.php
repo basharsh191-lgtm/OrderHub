@@ -32,6 +32,5 @@ public function destroy(Order $order)
     {
         $order->delete();
         return response()->json(['message'=>'oreder is deleted'], 200);
-}
-//
+    }
 }
