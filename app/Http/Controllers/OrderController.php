@@ -34,3 +34,4 @@ public function destroy(Order $order)
         return response()->json(['message'=>'oreder is deleted'], 200);
     }
 }
+//add omar
